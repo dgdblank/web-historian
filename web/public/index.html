@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script> -->
   <!-- <link rel="stylesheet" type="text/css" href="styles.css" /> -->
 </head>
 <body>
   Enter a URL here:
   <form method="POST">
     <input type="input" name="url"></input>
-    <button type="button" class="submit">Get Site</button>
+    <!-- <button type="button" class="submit">Get Site</button> -->
   </form>
-  <script>
+  <!-- <script>
   $(document).ready(function(){
 
     $('.submit').on('click', function(){
@@ -23,12 +23,15 @@
       $.ajax({
         url: 'http://127.0.0.1:8080',
         type: 'POST',
-        data: JSON.stringify(data + "\n"),
-        contentType: 'text',
-        success: function(){
+        data: {data : data},
+        dataType: 'text',
+        contentType: 'text/html',
+        success: function(response){
+          window.location.href = response.redirect;
           console.log("url sent!");
         },
-        error: function(){
+        error: function(response){
+          console.log(response);
           console.log("super error");
         }
 
@@ -36,6 +39,6 @@
 
     }
   });
-  </script>
+  </script> -->
 </body>
 </html>

@@ -9,7 +9,7 @@ var fileServer = new nodeStatic.Server('./public');
 
 var actions = {
   'POST': function (req, res) {
-    helpers.collectData(req);
+    helpers.collectData(req, res);
     helpers.sendResponse(res, 302);
   },
 
@@ -24,7 +24,7 @@ var actions = {
       path = archive.paths.home;
     }
 
-    helpers.serveAssets(res, path);
+    helpers.serveAssets(res, path, req.url);
   },
 
   'OPTIONS':function (req, res) {

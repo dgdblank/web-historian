@@ -1,7 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
-
+var helpers = require('../web/http-helpers');
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
  * Consider using the `paths` object below to store frequently used file paths. This way,
@@ -26,24 +26,44 @@ exports.initialize = function(pathsObj){
 // The following function names are provided to you to suggest how you might
 // modularize your code. Keep it clean!
 
+// WORKER
 exports.readListOfUrls = function(){
+  // what does sites.txt have? go get the html for that list.
+};
+
+
+exports.downloadUrls = function(){
+  // download html for that list.
+  // clearning sites.txt
+};
+
+// SERVER
+exports.isURLArchived = function(obj, res){
+  var site = obj.url;
+  var path = paths.archivedSites + '/' + site;
+  console.log("2. is url archived" + path);
+  fs.exists(path, function (exists) {
+    exists ? helpers.headers.Location = '/' + site : addUrlToList(site);
+  });
+  // fs.exists
+  // do we have the url archived?
+  // have we downloaded it yet?
 };
 
 exports.isUrlInList = function(){
-
+  // if that url is in sites.txt, serve waiting page.
 };
+//serve loading page
 
-exports.addUrlToList = function(url){
-
+exports.addUrlToList = addUrlToList = function(url){
+// we didnt have it - put it on list for worker.
+  console.log("3. add the nonexistant link to list." + url)
   fs.appendFile(paths.list, url, function(err){
     if (err) throw err;
-    console.log(url + " added!");
   });
 
+  // serve the loading page
+
 };
 
-exports.isURLArchived = function(){
-};
 
-exports.downloadUrls = function(){
-};

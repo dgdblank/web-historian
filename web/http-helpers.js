@@ -7,7 +7,8 @@ exports.headers = headers = {
   "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
   "access-control-allow-headers": "content-type, accept",
   "access-control-max-age": 10, // Seconds.
-  'Content-Type': "text/html"
+  'Content-Type': "text/html",
+  'Location': '/'
 };
 
 exports.sendResponse = function(res, statusCode) {
@@ -18,23 +19,42 @@ exports.sendResponse = function(res, statusCode) {
 }
 
 
-exports.serveAssets = function(res, asset) {
+exports.serveAssets = function(res, asset, url) {
+  console.log('3. serve assets' + asset);
   fs.readFile(asset, function(err, content){
         if(err){
           res.writeHead(500, headers);
           res.end();
         } else {
+          console.log('in serveAssets /' + url);
+          // headers.Location = url;
           res.writeHead(200, headers);
           res.end(content, 'utf-8');
         }
       });
 }
 
-exports.collectData = function(req){
-  req.on('data', function(data){
-    archive.addUrlToList(data);
-  })
+exports.collectData = function(req, res){
+  var url = '';
+    req.on('data', function(chunk){
+      url += chunk;
+    });
+
+    req.on('end', function(){
+      url = createObj(url);
+      console.log(url);
+      archive.isURLArchived(url, res);
+    })
 }
+
+exports.createObj = createObj = function(dataString){
+  // 'url=www.google.com'
+  var url = dataString.split('=');
+  var obj = {};
+  obj['url'] = url[1];
+  return obj;
+}
+
 
 
 
