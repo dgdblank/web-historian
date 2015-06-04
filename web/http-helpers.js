@@ -14,17 +14,23 @@ exports.sendResponse = function(res, statusCode) {
   statusCode = statusCode || 200;
   res.writeHead(statusCode, headers);
   console.log(statusCode, headers);
-
-    // res.file(archive.paths.home);
-
   res.end();
 }
 
 
-exports.serveAssets = function(res, asset, callback) {
-  // Write some code here that helps serve up your static files!
-  // (Static files are things like html (yours or archived from others...), css, or anything that doesn't change often.)
-};
+exports.serveAssets = function(res, asset) {
+  fs.readFile(asset, function(err, content){
+        if(err){
+          res.writeHead(500, headers);
+          res.end();
+        } else {
+          res.writeHead(200, headers);
+          res.end(content, 'utf-8');
+        }
+      });
+}
+
+
 
 
 

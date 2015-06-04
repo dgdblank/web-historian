@@ -17,22 +17,12 @@ var actions = {
 
 
   'GET': function (req, res) {
+    var path = archive.paths.archivedSites + req.url;
+    if(req.url === '/'){
+      path = archive.paths.home;
+    }
 
-    // req.addListener('end', function () {
-      // fileServer.serveFile('/index.html');
-      fs.readFile(archive.paths.home, function(err, content){
-        if(err){
-          res.writeHead(500, helpers.headers);
-          res.end();
-        } else {
-          res.writeHead(200, helpers.headers);
-          res.end(content, 'utf-8');
-        }
-      });
-    // fileServer.serveFile('/index.html');
-
-
-    // helpers.sendResponse(res, 200);
+    helpers.serveAssets(res, path);
   },
 
   'OPTIONS':function (req, res) {
