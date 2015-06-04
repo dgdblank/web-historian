@@ -9,8 +9,10 @@ var fileServer = new nodeStatic.Server('./public');
 
 var actions = {
   'POST': function (req, res) {
-    helpers.sendResponse(res, 201);
+    helpers.collectData(req);
+    helpers.sendResponse(res, 302);
   },
+
   // send response
   // check if we have HTML for URL in sites folder
     // if not add URL to our sites.txt

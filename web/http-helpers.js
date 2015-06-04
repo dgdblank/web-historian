@@ -13,7 +13,7 @@ exports.headers = headers = {
 exports.sendResponse = function(res, statusCode) {
   statusCode = statusCode || 200;
   res.writeHead(statusCode, headers);
-  console.log(statusCode, headers);
+  // console.log(statusCode, headers);
   res.end();
 }
 
@@ -28,6 +28,12 @@ exports.serveAssets = function(res, asset) {
           res.end(content, 'utf-8');
         }
       });
+}
+
+exports.collectData = function(req){
+  req.on('data', function(data){
+    archive.addUrlToList(data);
+  })
 }
 
 

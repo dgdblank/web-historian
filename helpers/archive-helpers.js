@@ -9,10 +9,10 @@ var _ = require('underscore');
  * customize it in any way you wish.
  */
 
-exports.paths = {
+exports.paths = paths = {
   'siteAssets' : path.join(__dirname, '../web/public'),
-  'archivedSites' : path.join(__dirname, '../archives/sites'),
-  'list' : path.join(__dirname, '../archives/sites.txt'),
+  'archivedSites' : path.join(__dirname, '../web/archives/sites'),
+  'list' : path.join(__dirname, '../web/archives/sites.txt'),
   'home' : path.join(__dirname, '../web/public/index.html')
 };
 
@@ -29,11 +29,17 @@ exports.initialize = function(pathsObj){
 exports.readListOfUrls = function(){
 };
 
-exports.isUrlInList = function(url){
+exports.isUrlInList = function(){
 
 };
 
-exports.addUrlToList = function(){
+exports.addUrlToList = function(url){
+
+  fs.appendFile(paths.list, url, function(err){
+    if (err) throw err;
+    console.log(url + " added!");
+  });
+
 };
 
 exports.isURLArchived = function(){
