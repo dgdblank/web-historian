@@ -19,8 +19,6 @@ exports.sendResponse = sendResponse = function(res, obj, statusCode) {
 
 
 exports.serveAssets = function(res, asset, callback) {
-  console.log('3. serve assets' + asset);
-
   // is in public folder?
   fs.readFile(archive.paths.siteAssets + asset, function(err, content){
     if(err){
@@ -52,7 +50,6 @@ exports.collectData = function(req, callback){
 }
 
 exports.sendRedirect = function(response, location, status) {
-  console.log('5. its redirected ' + location);
   status = status || 302;
   response.writeHead(status, {Location: location});
   response.end();

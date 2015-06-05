@@ -1,1 +1,6 @@
 www.google.com
+www.reddit.com
+www.arglebargle.com
+www.imdb.com
+www.hackreactor.com
+www.yahoo.com

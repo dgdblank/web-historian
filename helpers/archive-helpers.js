@@ -2,6 +2,7 @@ var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
 var helpers = require('../web/http-helpers');
+var request = require('request');
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
  * Consider using the `paths` object below to store frequently used file paths. This way,
@@ -24,13 +25,9 @@ exports.initialize = function(pathsObj){
   });
 };
 
-// The following function names are provided to you to suggest how you might
-// modularize your code. Keep it clean!
 
-// WORKER
 exports.readListOfUrls = readListOfUrls = function(callback){
   fs.readFile(paths.list, function (err, data) {
-  // what does sites.txt have? go get the html for that list.
     data = data.toString().split('\n');
     if (callback) {
       callback(data);
@@ -39,12 +36,13 @@ exports.readListOfUrls = readListOfUrls = function(callback){
 };
 
 
-exports.downloadUrls = function(){
-  // download html for that list.
-  // clearning sites.txt
+exports.downloadUrls = function(sites){
+  _.each(sites, function(site){
+    if (!site) { return; }
+    request('http://' + site).pipe(fs.createWriteStream(paths.archivedSites + '/' + site))
+  })
 };
 
-// SERVER
 exports.isURLArchived = function(url, callback){
   fs.exists(paths.archivedSites + '/' + url, function(exists) {
     callback(exists);
@@ -53,7 +51,6 @@ exports.isURLArchived = function(url, callback){
 
 
 exports.isUrlInList = function(url, callback){
-  // if that url is in sites.txt, serve waiting page.
     readListOfUrls(function(data){
       var exists = _.any(data, function(site){
         return site.match(url);
@@ -61,12 +58,8 @@ exports.isUrlInList = function(url, callback){
       callback(exists);
     })
 };
-//serve loading page
 
 exports.addUrlToList = addUrlToList = function(url, callback){
-// we didnt have it - put it on list for worker.
-// serve the loading page
-  console.log("3. add the nonexistant link to list." + url)
   fs.appendFile(paths.list, url + '\n', function(err, file){
     if (err) throw err;
     callback();
