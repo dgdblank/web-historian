@@ -1,33 +1,61 @@
 var path = require('path');
 var archive = require('../helpers/archive-helpers');
-var nodeStatic = require('node-static');
 var helpers = require('./http-helpers');
 var fs = require('fs')
+var urlParse = require('url')
 // require more modules/folders here!
-var fileServer = new nodeStatic.Server('./public');
 
 
 var actions = {
   'POST': function (req, res) {
-    helpers.collectData(req, res);
-    helpers.sendResponse(res, 302);
+    helpers.collectData(req, function(data){
+      var url = data.split('=')[1];
+      console.log('2. POST data ' + data);
+    // is it in sites.txt?
+      // helpers.serveAssets(res, url, function() {
+        archive.isUrlInList(url, function(exists){
+          // YES - is it archived?
+          if (exists) {
+            console.log('3. its in sites.txt ' + exists);
+            archive.isURLArchived(url, function(found){
+              // YES - redirect to page.
+              if (found) {
+                console.log('4. its archived ' + found);
+                helpers.sendRedirect(res, '/' + url);
+              // redirect to loading page
+              } else {
+                helpers.sendRedirect(res, '/loading.html')
+              }
+            })
+          } else {
+            // write to text
+            archive.addUrlToList(url, function(){
+              helpers.sendRedirect(res, '/loading.html')})
+          }
+        })
+      // })
+    })
   },
-
-  // send response
-  // check if we have HTML for URL in sites folder
-    // if not add URL to our sites.txt
-
 
   'GET': function (req, res) {
-    var path = archive.paths.archivedSites + req.url;
-    if(req.url === '/'){
-      path = archive.paths.home;
-    }
-
-    helpers.serveAssets(res, path, req.url);
+    var parts = urlParse.parse(req.url);
+    var pathName = parts.pathname === '/' ? '/index.html' : parts.pathname;
+    console.log('in GET')
+    helpers.serveAssets(res, pathName, function(){
+      // check in List
+      archive.isUrlInList(pathName.slice(1), function(found){
+        // if it is
+        if (found){
+          // redirect to loading
+          helpers.sendRedirect(res, '/loading.html')
+        } else {
+          helpers.send404(res);
+        }
+      })
+    })
   },
 
-  'OPTIONS':function (req, res) {
+  'OPTIONS': function (req, res) {
     helpers.sendResponse(res, 200);
   }
 }
@@ -37,7 +65,7 @@ exports.handleRequest = function (req, res) {
   if ( action ) {
     action (req, res)
   } else {
-    helpers.sendResponse(res, 404);
+    helpers.send404(res);
   }
   // res.end(archive.paths.list);
 

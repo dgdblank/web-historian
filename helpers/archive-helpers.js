@@ -13,7 +13,8 @@ exports.paths = paths = {
   'siteAssets' : path.join(__dirname, '../web/public'),
   'archivedSites' : path.join(__dirname, '../web/archives/sites'),
   'list' : path.join(__dirname, '../web/archives/sites.txt'),
-  'home' : path.join(__dirname, '../web/public/index.html')
+  'home' : path.join(__dirname, '../web/public/index.html'),
+  'loading' : path.join(__dirname, '../web/public/loading.html')
 };
 
 // Used for stubbing paths for jasmine tests, do not modify
@@ -27,8 +28,14 @@ exports.initialize = function(pathsObj){
 // modularize your code. Keep it clean!
 
 // WORKER
-exports.readListOfUrls = function(){
+exports.readListOfUrls = readListOfUrls = function(callback){
+  fs.readFile(paths.list, function (err, data) {
   // what does sites.txt have? go get the html for that list.
+    data = data.toString().split('\n');
+    if (callback) {
+      callback(data);
+    }
+  });
 };
 
 
@@ -38,32 +45,37 @@ exports.downloadUrls = function(){
 };
 
 // SERVER
-exports.isURLArchived = function(obj, res){
-  var site = obj.url;
-  var path = paths.archivedSites + '/' + site;
-  console.log("2. is url archived" + path);
-  fs.exists(path, function (exists) {
-    exists ? helpers.headers.Location = '/' + site : addUrlToList(site);
+exports.isURLArchived = function(url, callback){
+  fs.exists(paths.archivedSites + '/' + url, function(exists) {
+    callback(exists);
   });
-  // fs.exists
-  // do we have the url archived?
-  // have we downloaded it yet?
 };
 
-exports.isUrlInList = function(){
+
+exports.isUrlInList = function(url, callback){
   // if that url is in sites.txt, serve waiting page.
+    readListOfUrls(function(data){
+      var exists = _.any(data, function(site){
+        return site.match(url);
+      })
+      callback(exists);
+    })
 };
 //serve loading page
 
-exports.addUrlToList = addUrlToList = function(url){
+exports.addUrlToList = addUrlToList = function(url, callback){
 // we didnt have it - put it on list for worker.
+// serve the loading page
   console.log("3. add the nonexistant link to list." + url)
-  fs.appendFile(paths.list, url, function(err){
+  fs.appendFile(paths.list, url + '\n', function(err, file){
     if (err) throw err;
+    callback();
   });
 
-  // serve the loading page
-
 };
+
+exports.loadingPage = loadingPage = function(url){
+  helpers.headers.Location = '/loading.html'
+}
 
 

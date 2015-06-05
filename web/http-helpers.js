@@ -11,50 +11,57 @@ exports.headers = headers = {
   'Location': '/'
 };
 
-exports.sendResponse = function(res, statusCode) {
+exports.sendResponse = sendResponse = function(res, obj, statusCode) {
   statusCode = statusCode || 200;
   res.writeHead(statusCode, headers);
-  // console.log(statusCode, headers);
-  res.end();
+  res.end(obj);
 }
 
 
-exports.serveAssets = function(res, asset, url) {
+exports.serveAssets = function(res, asset, callback) {
   console.log('3. serve assets' + asset);
-  fs.readFile(asset, function(err, content){
+
+  // is in public folder?
+  fs.readFile(archive.paths.siteAssets + asset, function(err, content){
+    if(err){
+      // else if, is in archive folder?
+      fs.readFile(archive.paths.archivedSites + asset, function(err, content){
         if(err){
-          res.writeHead(500, headers);
-          res.end();
+          // else, 404 error
+          callback ? callback() : exports.send404(res);
         } else {
-          console.log('in serveAssets /' + url);
-          // headers.Location = url;
-          res.writeHead(200, headers);
-          res.end(content, 'utf-8');
+          exports.sendResponse(res, content);
         }
       });
+    } else {
+      exports.sendResponse(res, content);
+    }
+  });
 }
 
-exports.collectData = function(req, res){
-  var url = '';
+exports.collectData = function(req, callback){
+  var data = '';
     req.on('data', function(chunk){
-      url += chunk;
+      data += chunk;
     });
 
     req.on('end', function(){
-      url = createObj(url);
-      console.log(url);
-      archive.isURLArchived(url, res);
+      console.log('1. collectData ', data)
+      callback(data);
     })
 }
 
-exports.createObj = createObj = function(dataString){
-  // 'url=www.google.com'
-  var url = dataString.split('=');
-  var obj = {};
-  obj['url'] = url[1];
-  return obj;
+exports.sendRedirect = function(response, location, status) {
+  console.log('5. its redirected ' + location);
+  status = status || 302;
+  response.writeHead(status, {Location: location});
+  response.end();
 }
 
+
+exports.send404 = function(res) {
+  sendResponse(res, "404 not found", 404);
+}
 
 
 
